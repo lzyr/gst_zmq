@@ -1,7 +1,7 @@
 ZeroMQ binding for GNU Smalltalk.
 
 Right now we have the basic Request-Reply sockets working and can
-send/recv strings.
+send/recv strings. Follow these steps to try out the plugin:
 
 1. Install ZeroMQ (http://www.zeromq.org/)
 2. ./build
@@ -11,3 +11,5 @@ send/recv strings.
    gst ./src/st/zmq.st ./tests/hello-server.st 
 
    gst ./src/st/zmq.st ./tests/hello-client.st 
+
+(We will have a better build/deploy script soon!!)
