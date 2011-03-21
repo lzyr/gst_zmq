@@ -1,1 +1,13 @@
 ZeroMQ binding for GNU Smalltalk.
+
+Right now we have the basic Request-Reply sockets working and can
+send/recv strings.
+
+1. Install ZeroMQ (http://www.zeromq.org/)
+2. ./build
+3. ./deploy
+4. Run the sample server and client:
+
+   gst ./src/st/zmq.st ./tests/hello-server.st 
+
+   gst ./src/st/zmq.st ./tests/hello-client.st 
