@@ -1,2 +1,0 @@
-gcc -fPIC -c -Wall gst_zmq.c
-gcc -shared -Wl,-soname,libgstzmq.so -o libgstzmq.so.1.0.0 gst_zmq.o

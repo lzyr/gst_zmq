@@ -1,3 +1,0 @@
-cd ./src/c
-sudo cp libgstzmq.so.1.0.0 /usr/local/lib
-sudo /sbin/ldconfig
