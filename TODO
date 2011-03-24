@@ -1,3 +1,2 @@
- * Implement setsocketopt wrappers in C.
  * Implement Smalltalk interface for getsocketopt and setsocketopt calls.
  * High-level classes for basic Request-Response.
