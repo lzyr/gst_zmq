@@ -1,15 +1,18 @@
 ZeroMQ binding for GNU Smalltalk.
 
-Right now we have the basic Request-Reply sockets working and can
-send/recv strings. Follow these steps to try out the plugin:
+Right now we have the basic Request-Reply sockets working. 
+Follow these steps to try out the plugin:
 
 1. Install ZeroMQ (http://www.zeromq.org/)
-2. ./build
-3. ./deploy
-4. Run the sample server and client:
+2. Compile and install the C wrapper for some ZMQ calls:
+    
+     $ make
+     $ sudo make install
 
-   gst ./src/st/zmq.st ./tests/hello-server.st 
+4. Run the hello-world server:
 
-   gst ./src/st/zmq.st ./tests/hello-client.st 
+     $ gst ./src/st/zmq.st ./tests/hello-server.st 
 
-(We will have a better build/deploy script soon!!)
+5. Run the hello-world client in a new terminal:
+
+     $ gst ./src/st/zmq.st ./tests/hello-client.st 
