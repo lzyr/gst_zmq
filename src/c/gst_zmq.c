@@ -83,10 +83,70 @@ gstzmq_version ()
   return buffer; // Freed in Smalltalk.
 }
 
+/* polling. */
+
+typedef struct poll_info_
+{
+  size_t size;
+  size_t count;
+  zmq_pollitem_t *items;
+} poll_info;
+
+void *
+gstzmq_init_poll_info (size_t size)
+{
+  poll_info *pi = malloc (sizeof (poll_info));
+
+  if (pi == NULL)
+    return NULL;
+
+  pi->size = size;
+  pi->count = 0;
+  pi->items = malloc (sizeof (zmq_pollitem_t) * size);
+
+  if (pi->items == NULL)
+    {
+      free (pi);
+      return NULL;
+    }
+  return pi;
+}
+
+void
+gstzmq_delete_poll_info (poll_info *pi)
+{
+  free (pi->items);
+  free (pi);
+}
+
+int
+gstzmq_poll_info_add (poll_info *pi, void *socket,
+                      int fd, short events, 
+                      short revents)
+{
+  zmq_pollitem_t zpi;
+
+  if (pi->count >= pi->size)
+    return -1;
+
+  zpi.socket = socket;
+  zpi.fd = fd;
+  zpi.events = events;
+  zpi.revents = revents;
+  pi->items[pi->count++] = zpi;
+  return 0;
+}
+
+int
+gstzmq_poll (poll_info *pi, long timeout)
+{
+  return zmq_poll (pi->items, pi->count, timeout);
+}
+
 /* get/set socket options. */
 
 static int
-get_int_socketopt (void *socket, int option_name)
+get_int_sockopt (void *socket, int option_name)
 {
   int opt = 0;
   size_t sz = sizeof (opt);
@@ -97,7 +157,7 @@ get_int_socketopt (void *socket, int option_name)
 }
 
 static uint32_t
-get_uint32_t_socketopt (void *socket, int option_name)
+get_uint32_t_sockopt (void *socket, int option_name)
 {
   uint32_t opt = 0;
   size_t sz = sizeof (opt);
@@ -108,7 +168,7 @@ get_uint32_t_socketopt (void *socket, int option_name)
 }
 
 static uint64_t
-get_uint64_t_socketopt (void *socket, int option_name)
+get_uint64_t_sockopt (void *socket, int option_name)
 {
   uint64_t opt = 0;
   size_t sz = sizeof (opt);
@@ -119,7 +179,7 @@ get_uint64_t_socketopt (void *socket, int option_name)
 }
 
 static int64_t
-get_int64_t_socketopt (void *socket, int option_name)
+get_int64_t_sockopt (void *socket, int option_name)
 {
   int64_t opt = 0;
   size_t sz = sizeof (opt);
@@ -132,111 +192,111 @@ get_int64_t_socketopt (void *socket, int option_name)
 int
 gstzmq_getsockopt_type (void *socket)
 {
-  return get_int_socketopt (socket, ZMQ_TYPE);
+  return get_int_sockopt (socket, ZMQ_TYPE);
 }
 
 int
 gstzmq_getsockopt_rcvmore (void *socket)
 {
-  return get_int_socketopt (socket, ZMQ_RCVMORE);
+  return get_int_sockopt (socket, ZMQ_RCVMORE);
 }
 
 int
 gstzmq_getsockopt_linger (void *socket)
 {
-  return get_int_socketopt (socket, ZMQ_LINGER);
+  return get_int_sockopt (socket, ZMQ_LINGER);
 }
 
 int
 gstzmq_getsockopt_reconnect_ivl (void *socket)
 {
-  return get_int_socketopt (socket, ZMQ_RECONNECT_IVL);
+  return get_int_sockopt (socket, ZMQ_RECONNECT_IVL);
 }
 
 int
 gstzmq_getsockopt_reconnect_ivl_max (void *socket)
 {
-  return get_int_socketopt (socket, ZMQ_RECONNECT_IVL_MAX);
+  return get_int_sockopt (socket, ZMQ_RECONNECT_IVL_MAX);
 }
 
 int
 gstzmq_getsockopt_backlog (void *socket)
 {
-  return get_int_socketopt (socket, ZMQ_BACKLOG);
+  return get_int_sockopt (socket, ZMQ_BACKLOG);
 }
 
 int
 gstzmq_getsockopt_fd (void *socket)
 {
-  return get_int_socketopt (socket, ZMQ_FD);
+  return get_int_sockopt (socket, ZMQ_FD);
 }
 
 int64_t
 gstzmq_getsockopt_swap (void *socket)
 {
-  return get_int64_t_socketopt (socket, ZMQ_SWAP);
+  return get_int64_t_sockopt (socket, ZMQ_SWAP);
 }
 
 int64_t
 gstzmq_getsockopt_rate (void *socket)
 {
-  return get_int64_t_socketopt (socket, ZMQ_RATE);
+  return get_int64_t_sockopt (socket, ZMQ_RATE);
 }
 
 int64_t
 gstzmq_getsockopt_recovery_ivl (void *socket)
 {
-  return get_int64_t_socketopt (socket, ZMQ_RECOVERY_IVL);
+  return get_int64_t_sockopt (socket, ZMQ_RECOVERY_IVL);
 }
 
 int64_t
 gstzmq_getsockopt_recovery_ivl_msec (void *socket)
 {
-  return get_int64_t_socketopt (socket, ZMQ_RECOVERY_IVL_MSEC);
+  return get_int64_t_sockopt (socket, ZMQ_RECOVERY_IVL_MSEC);
 }
 
 int64_t
 gstzmq_getsockopt_mcast_loop (void *socket)
 {
-  return get_int64_t_socketopt (socket, ZMQ_MCAST_LOOP);
+  return get_int64_t_sockopt (socket, ZMQ_MCAST_LOOP);
 }
 
 /*
 int64_t
 gstzmq_getsockopt_maxmsgsize (void *socket)
 {
-  return get_int64_t_socketopt (socket, ZMQ_MAXMSGSIZE);
+  return get_int64_t_sockopt (socket, ZMQ_MAXMSGSIZE);
 }
 */
 
 uint64_t
 gstzmq_getsockopt_hwm (void *socket)
 {
-  return get_int_socketopt (socket, ZMQ_HWM);
+  return get_int_sockopt (socket, ZMQ_HWM);
 }
 
 uint64_t
 gstzmq_getsockopt_affinity (void *socket)
 {
-  return get_uint64_t_socketopt (socket, ZMQ_AFFINITY);
+  return get_uint64_t_sockopt (socket, ZMQ_AFFINITY);
 }
 
 uint64_t
 gstzmq_getsockopt_sndbuf (void *socket)
 {
-  return get_uint64_t_socketopt (socket, ZMQ_SNDBUF);
+  return get_uint64_t_sockopt (socket, ZMQ_SNDBUF);
 }
 
 uint64_t
 gstzmq_getsockopt_rcvbuf (void *socket)
 {
-  return get_uint64_t_socketopt (socket, ZMQ_RCVBUF);
+  return get_uint64_t_sockopt (socket, ZMQ_RCVBUF);
 }
 
 uint32_t
 gstzmq_getsockopt_events (void *socket)
 {
-  return get_uint32_t_socketopt (socket, ZMQ_EVENTS);
+  return get_uint32_t_sockopt (socket, ZMQ_EVENTS);
 }
 
 char *
@@ -255,3 +315,146 @@ gstzmq_getsockopt_identity (void *socket)
   return NULL;
 }
 
+static int
+gstzmq_int_setsockopt (void *socket, int option_name, int option_value)
+{
+  int rc = zmq_setsockopt (socket, option_name, 
+                           &option_value, sizeof (option_value));
+  return rc;
+}
+
+static int
+gstzmq_int64_t_setsockopt (void *socket, int option_name, int64_t option_value)
+{
+  int rc = zmq_setsockopt (socket, option_name, 
+                           &option_value, sizeof (option_value));
+  return rc;
+}
+
+static int
+gstzmq_uint64_t_setsockopt (void *socket, int option_name, uint64_t option_value)
+{
+  int rc = zmq_setsockopt (socket, option_name, 
+                           &option_value, sizeof (option_value));
+  return rc;
+}
+
+static int
+gstzmq_binary_setsockopt (void *socket, int option_name, 
+                          const char *option_value, size_t len)
+{
+  int rc = zmq_setsockopt (socket, option_name, 
+                           (const void *)option_value, 
+                           len);
+  return rc;
+}
+
+int
+gstzmq_setsockopt_hwm (void *socket, uint64_t value)
+{
+  return gstzmq_uint64_t_setsockopt (socket, ZMQ_HWM, value);
+}
+
+int
+gstzmq_setsockopt_affinity (void *socket, uint64_t value)
+{
+  return gstzmq_uint64_t_setsockopt (socket, ZMQ_AFFINITY, value);
+}
+
+int
+gstzmq_setsockopt_sndbuf (void *socket, uint64_t value)
+{
+  return gstzmq_uint64_t_setsockopt (socket, ZMQ_SNDBUF, value);
+}
+
+int
+gstzmq_setsockopt_rcvbuf (void *socket, uint64_t value)
+{
+  return gstzmq_uint64_t_setsockopt (socket, ZMQ_RCVBUF, value);
+}
+
+int
+gstzmq_setsockopt_swap (void *socket, int64_t value)
+{
+  return gstzmq_int64_t_setsockopt (socket, ZMQ_SWAP, value);
+}
+
+int
+gstzmq_setsockopt_rate (void *socket, int64_t value)
+{
+  return gstzmq_int64_t_setsockopt (socket, ZMQ_RATE, value);
+}
+
+int
+gstzmq_setsockopt_recovery_ivl (void *socket, int64_t value)
+{
+  return gstzmq_int64_t_setsockopt (socket, ZMQ_RECOVERY_IVL, value);
+}
+
+int
+gstzmq_setsockopt_recovery_ivl_msec (void *socket, int64_t value)
+{
+  return gstzmq_int64_t_setsockopt (socket, ZMQ_RECOVERY_IVL_MSEC, value);
+}
+
+int
+gstzmq_setsockopt_mcast_loop (void *socket, int64_t value)
+{
+  return gstzmq_int64_t_setsockopt (socket, ZMQ_MCAST_LOOP, value);
+}
+
+/*
+int
+gstzmq_setsockopt_maxmsgsize (void *socket, int64_t value)
+{
+  return gstzmq_int64_t_setsockopt (socket, ZMQ_MAXMSGSIZE, value);
+}
+*/
+
+int
+gstzmq_setsockopt_identity (void *socket, const char *value, 
+                            size_t len)
+{
+  return gstzmq_binary_setsockopt (socket, ZMQ_IDENTITY, 
+                                   value, len);
+}
+
+int
+gstzmq_setsockopt_subscribe (void *socket, const char *value, 
+                             size_t len)
+{
+  return gstzmq_binary_setsockopt (socket, ZMQ_SUBSCRIBE,
+                                   value, len);
+}
+
+int
+gstzmq_setsockopt_unsubscribe (void *socket, const char *value, 
+                             size_t len)
+{
+  return gstzmq_binary_setsockopt (socket, ZMQ_UNSUBSCRIBE,
+                                   value, len);
+}
+
+int
+gstzmq_setsockopt_linger (void *socket, int value)
+{
+  return gstzmq_int_setsockopt (socket, ZMQ_LINGER, value);
+}
+
+int
+gstzmq_setsockopt_reconnect_ivl (void *socket, int value)
+{
+  return gstzmq_int_setsockopt (socket, ZMQ_RECONNECT_IVL, value);
+}
+
+int
+gstzmq_setsockopt_reconnect_ivl_max (void *socket, int value)
+{
+  return gstzmq_int_setsockopt (socket, ZMQ_RECONNECT_IVL_MAX, value);
+}
+
+int
+gstzmq_setsockopt_backlog (void *socket, int value)
+{
+  return gstzmq_int_setsockopt (socket, ZMQ_BACKLOG, value);
+}
