@@ -21,37 +21,43 @@ THE SOFTWARE. "
 
 Namespace current: ZMQ [
 
-Object subclass: Server [
-    | context socket |
+Object subclass: Socket [
+    | context selfContext socket |
     
     <comment: 'ZMQ server.'>
     <category: 'ZMQ'>
 
     "Class variables."
     zmq := ZMQ.Core new.
-    globalContext := nil.
-    contextRefs := 0.
             
-    Server class >> open: connectionString [
+    Socket class >> bind: connectionString [
         | instance |
         <category: 'intialization'>
+        <comment: 'Creates a ZMQ_REP socket.'>
         
         instance := super new.
-        instance context: (Server globalContext_).        
+        instance context: (Socket newContext: 1) selfContext: true.
         (instance context) ifNil: [ SystemExceptions.CInterfaceError signal: 'Context is nil.' ].
         instance initSocket_: connectionString.
-        Server addContextRef_.
         ^instance.
     ]
 
     close [
+        <category: 'deinitialization'>
+
         zmq close: socket.
-        context == globalContext ifTrue: [ Server releaseContextRef_ ].
+        self deleteContext.
+    ]
+
+    deleteContext [
+        <category: 'deinitialization'>
+
+        context == nil ifFalse: [ selfContext ifTrue: [ Socket deleteContext: context. context := nil. ] ]
     ]
 
     receiveInto: aRequestHandlerBlock withFlags: intFlags [
         | requestString responseString |
-        <category: 'networking'>
+        <category: 'messaging'>
         
         requestString := zmq recv_string: socket flags: intFlags.
         responseString := aRequestHandlerBlock value: requestString.
@@ -59,18 +65,35 @@ Object subclass: Server [
     ]
 
     receiveInto: aRequestHandlerBlock [
-        <category: 'networking'>
+        <category: 'messaging'>
+
         self receiveInto: aRequestHandlerBlock withFlags: 0.
     ]
 
     context: aContext [ 
         <category: 'modifiers'>
+
+        self context: aContext selfContext: false.
+    ]
+
+    context: aContext selfContext: aBoolean [
+        <category: 'modifiers'>
+
+        self deleteContext.
         context := aContext. 
+        selfContext := aBoolean.
     ]
 
     context [ 
         <category: 'accessors'>
+
         ^context. 
+    ]
+
+    selfContext [ 
+        <category: 'accessors'>
+
+        ^selfContext. 
     ]
 
     initSocket_: connectionString [
@@ -83,33 +106,17 @@ Object subclass: Server [
             ifFalse: [ SystemExceptions.CInterfaceError signal: 'Failed to bind socket. ', (zmq strerror: (zmq errno)) ].
     ]
 
-    Server class >> globalContext_ [
-        <category: 'class private'>
-        globalContext ifNil: [ globalContext := zmq init: 1 ].
-        ^globalContext.
+    Socket class >> newContext: intIoThreads [
+        <category: 'class methods'>
+
+        ^ zmq init: intIoThreads.
     ]
 
-    Server class >> zmq_ [
-        <category: 'class private'>
-        ^zmq.
-    ]   
+    Socket class >> deleteContext: aContext [
+        <category: 'class methods'>
 
-    Server class >> addContextRef_ [
-        <category: 'class private'>
-        contextRefs := contextRefs + 1.
-    ]
-
-    Server class >> releaseContextRef_ [
-        <category: 'class private'>
-        contextRefs := contextRefs - 1.
-        contextRefs <= 0 ifTrue: [ Server termContext_. ]
-    ]
-
-    Server class >> termContext_ [
-        globalContext == nil ifFalse: [ zmq term: globalContext. 
-                                        globalContext := nil.
-                                        contextRefs := 0. ]
+        aContext == nil ifFalse: [ zmq term: aContext ]
     ]
     
-] "Class Server"
+] "Class Socket"
 ] "Namespace ZMQ"

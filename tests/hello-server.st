@@ -1,9 +1,6 @@
-server := ZMQ.Server open: 'tcp://*:5555'.
+socket := ZMQ.Socket bind: 'tcp://*:5555'.
 run := true.
-requestHandler := [ :request | request printNl. 
-    request = 'quit' 
-        ifTrue: [ run := false. 'bye' ] 
-    ifFalse: [ ' world' ]].
-[ run ] whileTrue: [ server receiveInto: requestHandler ].
-server close.
+[ run ] whileTrue: [ socket receiveInto: [ :request | request printNl. 
+    request = 'quit' ifTrue: [ run := false. 'bye' ] ifFalse: [ ' world' ]]].
+socket close.
 
