@@ -23,4 +23,4 @@ uninstall:
 	/sbin/ldconfig
 
 mkbin:
-	mkdir ${BIN}
+	mkdir -p ${BIN}

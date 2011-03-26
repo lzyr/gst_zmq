@@ -58,8 +58,162 @@ ZMQ extend [
         <cCall: 'gstzmq_recv_string' returning: #stringOut args: #(#cObject #int)> 
     ]
 
+    "polling."
+
+    init_poll_info: anInt [
+        <cCall: 'gstzmq_init_poll_info' returning: #cObject args: #(#int)> 
+    ]
+
+    delete_poll_info: aPointer [
+        <cCall: 'gstzmq_delete_poll_info' returning: #void args: #(#cObject)> 
+    ]
+
+    poll_info_add: aPointer socket: aSocket fd: anInt events: aShort 
+    revents: anotherShort [
+        <cCall: 'gstzmq_poll_info_add' returning: #int 
+                                       args: #(#cObject #cObject #int #int #int)>
+    ]
+
+    poll: aPointer timeout: aLong [
+        <cCall: 'gstzmq_poll' returning: #int args: #(#cObject #long)> 
+    ]
+
+    "get/set socket options."
+
     get_socket_type: aPointer [
         <cCall: 'gstzmq_getsockopt_type' returning: #int args: #(#cObject)> 
+    ]
+
+    get_socket_rcvmore: aPointer [
+        <cCall: 'gstzmq_getsockopt_rcvmore' returning: #int args: #(#cObject)> 
+    ]
+
+    get_socket_linger: aPointer [
+        <cCall: 'gstzmq_getsockopt_linger' returning: #int args: #(#cObject)> 
+    ]
+
+    get_socket_reconnect_ivl: aPointer [
+        <cCall: 'gstzmq_getsockopt_reconnect_ivl' returning: #int args: #(#cObject)> 
+    ]
+
+    get_socket_reconnect_ivl_max: aPointer [
+        <cCall: 'gstzmq_getsockopt_reconnect_ivl_max' returning: #int args: #(#cObject)> 
+    ]
+
+    get_socket_backlog: aPointer [
+        <cCall: 'gstzmq_getsockopt_backlog' returning: #int args: #(#cObject)> 
+    ]
+
+    get_socket_fd: aPointer [
+        <cCall: 'gstzmq_getsockopt_fd' returning: #int args: #(#cObject)> 
+    ]
+
+    get_socket_swap: aPointer [
+        <cCall: 'gstzmq_getsockopt_swap' returning: #long args: #(#cObject)> 
+    ]
+
+    get_socket_rate: aPointer [
+        <cCall: 'gstzmq_getsockopt_rate' returning: #long args: #(#cObject)> 
+    ]
+
+    get_socket_recovery_ivl: aPointer [
+        <cCall: 'gstzmq_getsockopt_recovery_ivl' returning: #long args: #(#cObject)> 
+    ]
+
+    get_socket_recovery_ivl_msec: aPointer [
+        <cCall: 'gstzmq_getsockopt_recovery_ivl_msec' returning: #long args: #(#cObject)> 
+    ]
+
+    get_socket_mcast_loop: aPointer [
+        <cCall: 'gstzmq_getsockopt_mcast_loop' returning: #long args: #(#cObject)> 
+    ]
+
+    get_socket_hwm: aPointer [
+        <cCall: 'gstzmq_getsockopt_hwm' returning: #uLong args: #(#cObject)> 
+    ]
+
+    get_socket_affinity: aPointer [
+        <cCall: 'gstzmq_getsockopt_affinity' returning: #uLong args: #(#cObject)> 
+    ]
+
+    get_socket_sndbuf: aPointer [
+        <cCall: 'gstzmq_getsockopt_sndbuf' returning: #uLong args: #(#cObject)> 
+    ]
+
+    get_socket_rcvbuf: aPointer [
+        <cCall: 'gstzmq_getsockopt_rcvbuf' returning: #uLong args: #(#cObject)> 
+    ]
+
+    get_socket_events: aPointer [
+        <cCall: 'gstzmq_getsockopt_events' returning: #uLong args: #(#cObject)> 
+    ]
+
+    get_socket_identity: aPointer [
+        <cCall: 'gstzmq_getsockopt_identity' returning: #stringOut args: #(#cObject)> 
+    ]
+
+    set_socket_hwm: aPointer [
+        <cCall: 'gstzmq_setsockopt_hwm' returning: #int args: #(#cObject #uLong)> 
+    ]
+
+    set_socket_affinity: aPointer [
+        <cCall: 'gstzmq_setsockopt_affinity' returning: #int args: #(#cObject #uLong)> 
+    ]
+
+    set_socket_sndbuf: aPointer [
+        <cCall: 'gstzmq_setsockopt_sndbuf' returning: #int args: #(#cObject #uLong)> 
+    ]
+
+    set_socket_rcvbuf: aPointer [
+        <cCall: 'gstzmq_setsockopt_rcvbuf' returning: #int args: #(#cObject #uLong)> 
+    ]
+
+    set_socket_swap: aPointer [
+        <cCall: 'gstzmq_setsockopt_swap' returning: #int args: #(#cObject #long)> 
+    ]
+
+    set_socket_rate: aPointer [
+        <cCall: 'gstzmq_setsockopt_rate' returning: #int args: #(#cObject #long)> 
+    ]
+
+    set_socket_recovery_ivl: aPointer [
+        <cCall: 'gstzmq_setsockopt_recovery_ivl' returning: #int args: #(#cObject #long)> 
+    ]
+
+    set_socket_recovery_ivl_msec: aPointer [
+        <cCall: 'gstzmq_setsockopt_recovery_ivl_msec' returning: #int args: #(#cObject #long)> 
+    ]
+
+    set_socket_mcast_loop: aPointer [
+        <cCall: 'gstzmq_setsockopt_mcast_loop' returning: #int args: #(#cObject #long)> 
+    ]
+
+    set_socket_identity: aPointer [
+        <cCall: 'gstzmq_setsockopt_identity' returning: #int args: #(#cObject #string)> 
+    ]
+
+    set_socket_subscribe: aPointer [
+        <cCall: 'gstzmq_setsockopt_subscribe' returning: #int args: #(#cObject #string)> 
+    ]
+
+    set_socket_unsubscribe: aPointer [
+        <cCall: 'gstzmq_setsockopt_unsubscribe' returning: #int args: #(#cObject #string)> 
+    ]
+
+    set_socket_linger: aPointer [
+        <cCall: 'gstzmq_setsockopt_linger' returning: #int args: #(#cObject #int)> 
+    ]
+
+    set_socket_reconnect_ivl: aPointer [
+        <cCall: 'gstzmq_setsockopt_reconnect_ivl' returning: #int args: #(#cObject #int)> 
+    ]
+
+    set_socket_reconnect_ivl_max: aPointer [
+        <cCall: 'gstzmq_setsockopt_reconnect_ivl_max' returning: #int args: #(#cObject #int)> 
+    ]
+
+    set_socket_backlog: aPointer [
+        <cCall: 'gstzmq_setsockopt_backlog' returning: #int args: #(#cObject #int)> 
     ]
 
     errno [

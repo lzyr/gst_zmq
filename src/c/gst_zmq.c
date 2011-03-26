@@ -92,7 +92,7 @@ typedef struct poll_info_
   zmq_pollitem_t *items;
 } poll_info;
 
-void *
+poll_info *
 gstzmq_init_poll_info (size_t size)
 {
   poll_info *pi = malloc (sizeof (poll_info));
@@ -412,25 +412,25 @@ gstzmq_setsockopt_maxmsgsize (void *socket, int64_t value)
 */
 
 int
-gstzmq_setsockopt_identity (void *socket, const char *value, 
-                            size_t len)
+gstzmq_setsockopt_identity (void *socket, const char *value)
 {
+  size_t len = strlen (value);
   return gstzmq_binary_setsockopt (socket, ZMQ_IDENTITY, 
                                    value, len);
 }
 
 int
-gstzmq_setsockopt_subscribe (void *socket, const char *value, 
-                             size_t len)
+gstzmq_setsockopt_subscribe (void *socket, const char *value)
 {
+  size_t len = strlen (value);
   return gstzmq_binary_setsockopt (socket, ZMQ_SUBSCRIBE,
                                    value, len);
 }
 
 int
-gstzmq_setsockopt_unsubscribe (void *socket, const char *value, 
-                             size_t len)
+gstzmq_setsockopt_unsubscribe (void *socket, const char *value)
 {
+  size_t len = strlen (value);
   return gstzmq_binary_setsockopt (socket, ZMQ_UNSUBSCRIBE,
                                    value, len);
 }
