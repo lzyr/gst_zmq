@@ -1,4 +1,4 @@
-zmq := ZMQ new.
+zmq := ZMQ.Core new.
 context := zmq init: 1.
 context printNl.
 socket := zmq socket: context type: (zmq REP).
