@@ -1,10 +1,9 @@
-zmq := ZMQ.Core new.
-context := zmq init: 1.
-context printNl.
-socket := zmq socket: context type: (zmq REP).
-socket printNl.
-(zmq bind: socket endPoint: 'tcp://*:5555') printNl.
-(zmq recv_string: socket flags: 0) printNl.
-(zmq send_string: socket string: 'World!!' flags: 0) printNl.
-(zmq close: socket) printNl.
-zmq term: context.
+server := ZMQ.Server open: 'tcp://*:5555'.
+run := true.
+requestHandler := [ :request | request printNl. 
+    request = 'quit' 
+        ifTrue: [ run := false. 'bye' ] 
+    ifFalse: [ ' world' ]].
+[ run ] whileTrue: [ server receiveInto: requestHandler ].
+server close.
+

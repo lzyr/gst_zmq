@@ -24,7 +24,10 @@ DLD addLibrary: 'libgstzmq'.
 
 Namespace current: ZMQ [
 
-Object subclass: #Core.
+Object subclass: #Core. "[
+    <comment: 'Low-level calls to the ZMQ library.'>
+    <category: 'ZMQ'>
+]."
 
 Core extend [
 
@@ -222,7 +225,7 @@ Core extend [
         <cCall: 'zmq_errno' returning: #int args: #(#void)> 
     ]
 
-    strerror [
+    strerror: anInt [
         <cCall: 'zmq_strerror' returning: #string args: #(#int)> 
     ]
 
