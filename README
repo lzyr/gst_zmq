@@ -2,6 +2,7 @@ ZeroMQ binding for GNU Smalltalk.
 
 Right now we have the basic Request-Reply sockets working. 
 Follow these steps to try out the plugin:
+(Be warned that the code is not yet ready for real-world use!)
 
 1. Install ZeroMQ (http://www.zeromq.org/)
 2. Compile and install the C wrapper for some ZMQ calls:
@@ -11,8 +12,8 @@ Follow these steps to try out the plugin:
 
 4. Run the hello-world server:
 
-     $ gst ./src/st/zmq.st ./tests/hello-server.st 
+     $ gst ./src/st/zmq.st ./src/st/zmq_server.st ./tests/hello-server.st 
 
 5. Run the hello-world client in a new terminal:
 
-     $ gst ./src/st/zmq.st ./tests/hello-client.st 
+     $ gst ./src/st/zmq.st ./tests/core-hello-client.st 
