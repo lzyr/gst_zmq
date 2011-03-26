@@ -12,8 +12,8 @@ Follow these steps to try out the plugin:
 
 4. Run the hello-world server:
 
-     $ gst ./src/st/zmq.st ./src/st/zmq_server.st ./tests/hello-server.st 
+     $ gst ./src/st/zmq.st ./src/st/zmq-server.st ./tests/hello-server.st 
 
 5. Run the hello-world client in a new terminal:
 
-     $ gst ./src/st/zmq.st ./tests/core-hello-client.st 
+     $ gst ./src/st/zmq.st ./src/st/zmq-server.st ./tests/hello-client.st 

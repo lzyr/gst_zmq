@@ -38,7 +38,19 @@ Object subclass: Socket [
         instance := super new.
         instance context: (Socket newContext: 1) selfContext: true.
         (instance context) ifNil: [ SystemExceptions.CInterfaceError signal: 'Context is nil.' ].
-        instance initSocket_: connectionString.
+        instance initRepSocket_: connectionString.
+        ^instance.
+    ]
+
+    Socket class >> connect: connectionString [
+        | instance |
+        <category: 'intialization'>
+        <comment: 'Creates a ZMQ_REQ socket.'>
+        
+        instance := super new.
+        instance context: (Socket newContext: 1) selfContext: true.
+        (instance context) ifNil: [ SystemExceptions.CInterfaceError signal: 'Context is nil.' ].
+        instance initReqSocket_: connectionString.
         ^instance.
     ]
 
@@ -55,19 +67,64 @@ Object subclass: Socket [
         context == nil ifFalse: [ selfContext ifTrue: [ Socket deleteContext: context. context := nil. ] ]
     ]
 
-    receiveInto: aRequestHandlerBlock withFlags: intFlags [
+    receive [
+        <category: 'messaging'>
+
+        ^ self receive: 0.
+    ]
+
+    receive: intFlags [
+        <category: 'messaging'>
+
+        ^ zmq recv_string: socket flags: intFlags.
+    ]
+
+    send: aString [
+        <category: 'messaging'>
+
+        ^ self send: aString flags: 0.
+    ]
+
+    send: aString flags: intFlags [
+        <category: 'messaging'>
+
+        ^ zmq send_string: socket string: aString flags: intFlags.
+    ]
+
+    receiveSend: aRequestHandlerBlock flags: intFlags [
         | requestString responseString |
         <category: 'messaging'>
         
-        requestString := zmq recv_string: socket flags: intFlags.
+        requestString := self receive: intFlags.
         responseString := aRequestHandlerBlock value: requestString.
-        zmq send_string: socket string: responseString flags: intFlags.
+        self send: responseString flags: intFlags.
     ]
 
-    receiveInto: aRequestHandlerBlock [
+    receiveSend: aRequestHandlerBlock [
+        <category: 'messaging'>
+        
+        self receiveSend: aRequestHandlerBlock flags: 0.
+    ]
+
+    while: aPredicateBlock receiveSend: aRequestHandlerBlock flags: intFlags [
+        aPredicateBlock whileTrue: [ self receiveSend: aRequestHandlerBlock flags: intFlags ].
+    ]
+
+    while: aPredicateBlock receiveSend: aRequestHandlerBlock [
+        aPredicateBlock whileTrue: [ self receiveSend: aRequestHandlerBlock flags: 0 ].
+    ]
+
+    sendReceive: aString handler: aResponseHandlerBlock flags: intFlags [
+        <category: 'messaging'>
+        
+        self send: aString flags: intFlags.
+        aResponseHandlerBlock value: (self receive: intFlags).
+    ]
+
+    sendReceive: aString handler: aResponseHandlerBlock [
         <category: 'messaging'>
 
-        self receiveInto: aRequestHandlerBlock withFlags: 0.
+        self sendReceive: aString handler: aResponseHandlerBlock flags: 0.
     ]
 
     context: aContext [ 
@@ -96,14 +153,24 @@ Object subclass: Socket [
         ^selfContext. 
     ]
 
-    initSocket_: connectionString [
-        <comment: 'Initializes the default REPLY socket.'>
+    initRepSocket_: connectionString [
+        <comment: 'Initializes the default REP socket.'>
         <category: 'private'>
 
         socket := zmq socket: context type: (zmq REP).
         socket ifNil: [ SystemExceptions.CInterfaceError signal: 'Failed to initialize socket.' ].
         (zmq bind: socket endPoint: connectionString) == 0
             ifFalse: [ SystemExceptions.CInterfaceError signal: 'Failed to bind socket. ', (zmq strerror: (zmq errno)) ].
+    ]
+
+    initReqSocket_: connectionString [
+        <comment: 'Initializes the default REQ socket.'>
+        <category: 'private'>
+
+        socket := zmq socket: context type: (zmq REQ).
+        socket ifNil: [ SystemExceptions.CInterfaceError signal: 'Failed to initialize socket.' ].
+        (zmq connect: socket endPoint: connectionString) == 0
+            ifFalse: [ SystemExceptions.CInterfaceError signal: 'Failed to connect socket. ', (zmq strerror: (zmq errno)) ].
     ]
 
     Socket class >> newContext: intIoThreads [
