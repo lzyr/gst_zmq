@@ -1,3 +1,2 @@
-socket := ZMQ.Socket connect: 'tcp://localhost:5555'.
-socket sendReceive: 'hello' handler: [ :response | response printNl ].
-socket close.
+(ZMQ.Socket connect: 'tcp://localhost:5555')
+sendReceive: 'hello' handler: [ :response | response printNl ]; close.
