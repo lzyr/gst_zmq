@@ -157,7 +157,7 @@ Object subclass: Socket [
         <comment: 'Initializes the default REP socket.'>
         <category: 'private'>
 
-        socket := zmq socket: context type: (zmq REP).
+        socket := zmq socket: context type: (ZMQ.Core REP).
         socket ifNil: [ SystemExceptions.CInterfaceError signal: 'Failed to initialize socket.' ].
         (zmq bind: socket endPoint: connectionString) == 0
             ifFalse: [ SystemExceptions.CInterfaceError signal: 'Failed to bind socket. ', (zmq strerror: (zmq errno)) ].
@@ -167,7 +167,7 @@ Object subclass: Socket [
         <comment: 'Initializes the default REQ socket.'>
         <category: 'private'>
 
-        socket := zmq socket: context type: (zmq REQ).
+        socket := zmq socket: context type: (ZMQ.Core REQ).
         socket ifNil: [ SystemExceptions.CInterfaceError signal: 'Failed to initialize socket.' ].
         (zmq connect: socket endPoint: connectionString) == 0
             ifFalse: [ SystemExceptions.CInterfaceError signal: 'Failed to connect socket. ', (zmq strerror: (zmq errno)) ].

@@ -221,24 +221,24 @@ Core extend [
         <cCall: 'gstzmq_setsockopt_backlog' returning: #int args: #(#cObject #int)> 
     ]
 
-    errno [
+    Core class >> errno [
         <cCall: 'zmq_errno' returning: #int args: #(#void)> 
     ]
 
-    strerror: anInt [
+    Core class >> strerror: anInt [
         <cCall: 'zmq_strerror' returning: #string args: #(#int)> 
     ]
 
-    version [
+    Core class >> version [
         <cCall: 'gstzmq_version' returning: #stringOut args: #(#void)> 
     ]
 
     "Constants"
-    REQ [
+    Core class >> REQ [
         <cCall: 'gstzmq_REQ' returning: #int args: #(#void)> 
     ]
 
-    REP [
+    Core class >> REP [
         <cCall: 'gstzmq_REP' returning: #int args: #(#void)> 
     ]
 ] "Class Core"
