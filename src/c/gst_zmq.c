@@ -45,8 +45,12 @@ strtype_to_int (const char *type)
 {
   if (strcmp (type, "Request") == 0)
     return ZMQ_REQ;
-  else
+  else if (strcmp (type, "Reply") == 0)
     return ZMQ_REP;
+  else if (strcmp (type, "Publish") == 0)
+    return ZMQ_PUB;
+  else
+    return ZMQ_SUB;
 }
 
 void *

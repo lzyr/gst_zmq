@@ -51,11 +51,33 @@ Object subclass: Socket [
         <category: 'intialization'>
         <comment: 'Creates a ZMQ_REQ socket.'>
         
+        ^Socket connect: connectionString type: #Request.
+    ]
+
+    Socket class >> connect: connectionString type: typeSymbol [
+        | this |
+        <category: 'intialization'>
+        <comment: 'Creates and connects a ZMQ socket.'>
+        
         this := super new.
         this context: (Socket newContext: 1) selfContext: true.
         (this context) ifNil: [ SystemExceptions.CInterfaceError signal: 'Context is nil.' ].
-        this initConnectSocket_: connectionString type: #Request.
+        this initConnectSocket_: connectionString type: typeSymbol.
         ^this.
+    ]
+
+    rebind: connectionString [
+        <category: 'initialization'>
+        
+        self bind_: connectionString.
+    ]
+
+    subscribe: filterString [
+        ZMQ.Core set_socket_subscribe: socket value: filterString.
+    ]
+
+    socket [
+        ^ socket.
     ]
 
     close [
@@ -118,6 +140,14 @@ Object subclass: Socket [
         aPredicateBlock whileTrue: [ self receiveSend: aRequestHandlerBlock flags: 0 ].
     ]
 
+    while: aPredicateBlock send: aResponseGeneratorBlock [
+        self while: aPredicateBlock send: aResponseGeneratorBlock flags: 0.
+    ]
+
+    while: aPredicateBlock send: aResponseGeneratorBlock flags: intFlags [
+        aPredicateBlock whileTrue: [ self send: (aResponseGeneratorBlock value) flags: intFlags ].
+    ]
+
     sendReceive: aString handler: aResponseHandlerBlock flags: intFlags [
         <category: 'messaging'>
         
@@ -157,6 +187,14 @@ Object subclass: Socket [
         ^selfContext. 
     ]
 
+    bind_: connectionString [
+        <category: 'private'>
+        
+        (Core bind: socket endPoint: connectionString) == 0
+            ifFalse: [ SystemExceptions.CInterfaceError signal: 'Failed to bind socket. ', 
+                           (Core strerror: (Core errno)) ].
+    ]
+
     initSocket_: connectionString type: typeSymbol [
         <comment: 'Initializes a socket.'>
         <category: 'private'>
@@ -170,9 +208,7 @@ Object subclass: Socket [
         <category: 'private'>
         
         self initSocket_: connectionString type: typeSymbol.
-        (Core bind: socket endPoint: connectionString) == 0
-            ifFalse: [ SystemExceptions.CInterfaceError signal: 'Failed to bind socket. ', 
-                           (Core strerror: (Core errno)) ].
+        self bind_: connectionString.
     ]
 
     initConnectSocket_: connectionString type: typeSymbol [

@@ -154,67 +154,67 @@ Core extend [
         <cCall: 'gstzmq_getsockopt_identity' returning: #stringOut args: #(#cObject)> 
     ]
 
-    Core class >> set_socket_hwm: aPointer [
+    Core class >> set_socket_hwm: aPointer value: auLong [
         <cCall: 'gstzmq_setsockopt_hwm' returning: #int args: #(#cObject #uLong)> 
     ]
 
-    Core class >> set_socket_affinity: aPointer [
+    Core class >> set_socket_affinity: aPointer value: auLong [
         <cCall: 'gstzmq_setsockopt_affinity' returning: #int args: #(#cObject #uLong)> 
     ]
 
-    Core class >> set_socket_sndbuf: aPointer [
+    Core class >> set_socket_sndbuf: aPointer value: auLong [
         <cCall: 'gstzmq_setsockopt_sndbuf' returning: #int args: #(#cObject #uLong)> 
     ]
 
-    Core class >> set_socket_rcvbuf: aPointer [
+    Core class >> set_socket_rcvbuf: aPointer value: auLong [
         <cCall: 'gstzmq_setsockopt_rcvbuf' returning: #int args: #(#cObject #uLong)> 
     ]
 
-    Core class >> set_socket_swap: aPointer [
+    Core class >> set_socket_swap: aPointer value: aLong [
         <cCall: 'gstzmq_setsockopt_swap' returning: #int args: #(#cObject #long)> 
     ]
 
-    Core class >> set_socket_rate: aPointer [
+    Core class >> set_socket_rate: aPointer value: aLong [
         <cCall: 'gstzmq_setsockopt_rate' returning: #int args: #(#cObject #long)> 
     ]
 
-    Core class >> set_socket_recovery_ivl: aPointer [
+    Core class >> set_socket_recovery_ivl: aPointer value: aLong [
         <cCall: 'gstzmq_setsockopt_recovery_ivl' returning: #int args: #(#cObject #long)> 
     ]
 
-    Core class >> set_socket_recovery_ivl_msec: aPointer [
+    Core class >> set_socket_recovery_ivl_msec: aPointer value: aLong [
         <cCall: 'gstzmq_setsockopt_recovery_ivl_msec' returning: #int args: #(#cObject #long)> 
     ]
 
-    Core class >> set_socket_mcast_loop: aPointer [
+    Core class >> set_socket_mcast_loop: aPointer value: aLong [
         <cCall: 'gstzmq_setsockopt_mcast_loop' returning: #int args: #(#cObject #long)> 
     ]
 
-    Core class >> set_socket_identity: aPointer [
+    Core class >> set_socket_identity: aPointer value: aString [
         <cCall: 'gstzmq_setsockopt_identity' returning: #int args: #(#cObject #string)> 
     ]
 
-    Core class >> set_socket_subscribe: aPointer [
+    Core class >> set_socket_subscribe: aPointer value: aString [
         <cCall: 'gstzmq_setsockopt_subscribe' returning: #int args: #(#cObject #string)> 
     ]
 
-    Core class >> set_socket_unsubscribe: aPointer [
+    Core class >> set_socket_unsubscribe: aPointer value: aString [
         <cCall: 'gstzmq_setsockopt_unsubscribe' returning: #int args: #(#cObject #string)> 
     ]
 
-    Core class >> set_socket_linger: aPointer [
+    Core class >> set_socket_linger: aPointer value: anInt [
         <cCall: 'gstzmq_setsockopt_linger' returning: #int args: #(#cObject #int)> 
     ]
 
-    Core class >> set_socket_reconnect_ivl: aPointer [
+    Core class >> set_socket_reconnect_ivl: aPointer value: anInt [
         <cCall: 'gstzmq_setsockopt_reconnect_ivl' returning: #int args: #(#cObject #int)> 
     ]
 
-    Core class >> set_socket_reconnect_ivl_max: aPointer [
+    Core class >> set_socket_reconnect_ivl_max: aPointer value: anInt [
         <cCall: 'gstzmq_setsockopt_reconnect_ivl_max' returning: #int args: #(#cObject #int)> 
     ]
 
-    Core class >> set_socket_backlog: aPointer [
+    Core class >> set_socket_backlog: aPointer value: anInt [
         <cCall: 'gstzmq_setsockopt_backlog' returning: #int args: #(#cObject #int)> 
     ]
 
