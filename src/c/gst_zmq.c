@@ -40,6 +40,21 @@ gstzmq_REP ()
   return ZMQ_REP;
 }
 
+static int
+strtype_to_int (const char *type)
+{
+  if (strcmp (type, "Request") == 0)
+    return ZMQ_REQ;
+  else
+    return ZMQ_REP;
+}
+
+void *
+gstzmq_socket (void *context, const char *type)
+{
+  return zmq_socket (context, strtype_to_int (type));
+}
+
 int
 gstzmq_send_string (void *socket, char *str, int flags)
 {

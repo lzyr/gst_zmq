@@ -27,37 +27,41 @@ Object subclass: Socket [
     <comment: 'ZMQ server.'>
     <category: 'ZMQ'>
 
-    "Class variables."
-    zmq := ZMQ.Core new.
-            
     Socket class >> bind: connectionString [
-        | instance |
         <category: 'intialization'>
         <comment: 'Creates a ZMQ_REP socket.'>
         
-        instance := super new.
-        instance context: (Socket newContext: 1) selfContext: true.
-        (instance context) ifNil: [ SystemExceptions.CInterfaceError signal: 'Context is nil.' ].
-        instance initRepSocket_: connectionString.
-        ^instance.
+        ^Socket bind: connectionString type: #Reply.
+    ]
+
+    Socket class >> bind: connectionString type: typeSymbol [
+        | this |
+        <category: 'intialization'>
+        <comment: 'Creates and binds ZMQ socket.'>
+        
+        this := super new.
+        this context: (Socket newContext: 1) selfContext: true.
+        (this context) ifNil: [ SystemExceptions.CInterfaceError signal: 'Context is nil.' ].
+        this initBindSocket_: connectionString type: typeSymbol.
+        ^this.
     ]
 
     Socket class >> connect: connectionString [
-        | instance |
+        | this |
         <category: 'intialization'>
         <comment: 'Creates a ZMQ_REQ socket.'>
         
-        instance := super new.
-        instance context: (Socket newContext: 1) selfContext: true.
-        (instance context) ifNil: [ SystemExceptions.CInterfaceError signal: 'Context is nil.' ].
-        instance initReqSocket_: connectionString.
-        ^instance.
+        this := super new.
+        this context: (Socket newContext: 1) selfContext: true.
+        (this context) ifNil: [ SystemExceptions.CInterfaceError signal: 'Context is nil.' ].
+        this initConnectSocket_: connectionString type: #Request.
+        ^this.
     ]
 
     close [
         <category: 'deinitialization'>
 
-        zmq close: socket.
+        Core close: socket.
         self deleteContext.
     ]
 
@@ -76,7 +80,7 @@ Object subclass: Socket [
     receive: intFlags [
         <category: 'messaging'>
 
-        ^ zmq recv_string: socket flags: intFlags.
+        ^ Core recv_string: socket flags: intFlags.
     ]
 
     send: aString [
@@ -88,7 +92,7 @@ Object subclass: Socket [
     send: aString flags: intFlags [
         <category: 'messaging'>
 
-        ^ zmq send_string: socket string: aString flags: intFlags.
+        ^ Core send_string: socket string: aString flags: intFlags.
     ]
 
     receiveSend: aRequestHandlerBlock flags: intFlags [
@@ -153,36 +157,44 @@ Object subclass: Socket [
         ^selfContext. 
     ]
 
-    initRepSocket_: connectionString [
-        <comment: 'Initializes the default REP socket.'>
+    initSocket_: connectionString type: typeSymbol [
+        <comment: 'Initializes a socket.'>
         <category: 'private'>
-
-        socket := zmq socket: context type: (ZMQ.Core REP).
+        
+        socket := Core socket: context type: typeSymbol.
         socket ifNil: [ SystemExceptions.CInterfaceError signal: 'Failed to initialize socket.' ].
-        (zmq bind: socket endPoint: connectionString) == 0
-            ifFalse: [ SystemExceptions.CInterfaceError signal: 'Failed to bind socket. ', (zmq strerror: (zmq errno)) ].
     ]
 
-    initReqSocket_: connectionString [
+    initBindSocket_: connectionString type: typeSymbol [
+        <comment: 'Initializes a socket.'>
+        <category: 'private'>
+        
+        self initSocket_: connectionString type: typeSymbol.
+        (Core bind: socket endPoint: connectionString) == 0
+            ifFalse: [ SystemExceptions.CInterfaceError signal: 'Failed to bind socket. ', 
+                           (Core strerror: (Core errno)) ].
+    ]
+
+    initConnectSocket_: connectionString type: typeSymbol [
         <comment: 'Initializes the default REQ socket.'>
         <category: 'private'>
 
-        socket := zmq socket: context type: (ZMQ.Core REQ).
-        socket ifNil: [ SystemExceptions.CInterfaceError signal: 'Failed to initialize socket.' ].
-        (zmq connect: socket endPoint: connectionString) == 0
-            ifFalse: [ SystemExceptions.CInterfaceError signal: 'Failed to connect socket. ', (zmq strerror: (zmq errno)) ].
+        self initSocket_: connectionString type: typeSymbol.
+        (Core connect: socket endPoint: connectionString) == 0
+            ifFalse: [ SystemExceptions.CInterfaceError signal: 'Failed to connect socket. ', 
+                           (Core strerror: (Core errno)) ].
     ]
 
     Socket class >> newContext: intIoThreads [
         <category: 'class methods'>
 
-        ^ zmq init: intIoThreads.
+        ^ Core init: intIoThreads.
     ]
 
     Socket class >> deleteContext: aContext [
         <category: 'class methods'>
 
-        aContext == nil ifFalse: [ zmq term: aContext ]
+        aContext == nil ifFalse: [ Core term: aContext ]
     ]
     
 ] "Class Socket"
