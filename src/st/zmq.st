@@ -60,6 +60,26 @@ Core extend [
         <cCall: 'gstzmq_recv_string' returning: #stringOut args: #(#cObject #int)> 
     ]
 
+    Core class >> send_bytes: aPointer bytes: aByteArray size: szInt flags: anInt [
+        <cCall: 'gstzmq_send_bytes' returning: #int args: #(#cObject #byteArray #int #int)> 
+    ]
+
+    Core class >> recv_bytes: aPointer flags: anInt [
+        <cCall: 'gstzmq_recv_bytes' returning: #cObject args: #(#cObject #int)> 
+    ]
+
+    Core class >> bytes_size: aPointer [
+        <cCall: 'gstzmq_bytes_size' returning: #uInt args: #(#cObject)> 
+    ]
+
+    Core class >> bytes: aPointer [
+        <cCall: 'gstzmq_bytes' returning: #cObject args: #(#cObject)> 
+    ]
+
+    Core class >> bytes_free: aPointer [
+        <cCall: 'gstzmq_bytes_free' returning: #void args: #(#cObject)> 
+    ]
+
     "polling."
 
     Core class >> init_poll_info: anInt [

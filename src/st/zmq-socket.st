@@ -105,10 +105,38 @@ Object subclass: Socket [
         ^ Core recv_string: socket flags: intFlags.
     ]
 
+    receiveBytes: intFlags [
+        | cObj bytes |
+        <category: 'messaging'>
+
+        cObj := Core recv_bytes: socket flags: intFlags.
+        bytes := String fromCData: (Core bytes: cObj) size: (Core bytes_size: cObj).
+        Core bytes_free: cObj.
+        ^bytes.
+    ]
+
+    receiveBytes [
+        <category: 'messaging'>
+
+        ^self receiveBytes: 0.
+    ]
+
     send: aString [
         <category: 'messaging'>
 
         ^ self send: aString flags: 0.
+    ]
+
+    sendBytes: aByteArray flags: intFlags [
+        <category: 'messaging'>
+
+        ^ Core send_bytes: socket bytes: aByteArray size: (aByteArray size) flags: intFlags.
+    ]
+
+    sendBytes: aByteArray [
+        <category: 'messaging'>
+
+        ^ self sendBytes: aByteArray flags: 0.
     ]
 
     send: aString flags: intFlags [

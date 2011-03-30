@@ -60,15 +60,21 @@ gstzmq_socket (void *context, const char *type)
 }
 
 int
-gstzmq_send_string (void *socket, char *str, int flags)
+gstzmq_send_bytes (void *socket, char *str, size_t len, int flags)
 {
   zmq_msg_t message;
   int r = 0;
 
-  zmq_msg_init_data (&message, str, strlen (str), NULL, NULL);
+  zmq_msg_init_data (&message, str, len, NULL, NULL);
   r = zmq_send (socket, &message, flags);
   zmq_msg_close (&message);
   return r;
+}
+
+int
+gstzmq_send_string (void *socket, char *str, int flags)
+{
+  return gstzmq_send_bytes (socket, str, strlen (str), flags);
 }
 
 char *
@@ -87,6 +93,53 @@ gstzmq_recv_string (void *socket, int flags)
   zmq_msg_close (&message);
   str [size] = 0;
   return (str);
+}
+
+typedef struct bytes_container_
+{
+  size_t size;
+  char *bytes;
+} bytes_container;
+
+size_t 
+gstzmq_bytes_size (void *obj)
+{
+  bytes_container *bytes = (bytes_container *)obj;
+  return bytes->size;
+}
+
+void * 
+gstzmq_bytes (void *obj)
+{
+  bytes_container *bytes = (bytes_container *)obj;
+  return bytes->bytes;
+}
+
+void 
+gstzmq_bytes_free (void *obj)
+{
+  free (obj);
+}
+
+void *
+gstzmq_recv_bytes (void *socket, int flags)
+{
+  zmq_msg_t message;
+  int size;
+  char *str;
+  bytes_container *bytes;
+
+  zmq_msg_init (&message);
+  if (zmq_recv (socket, &message, flags))
+    return NULL;
+  size = zmq_msg_size (&message);
+  str = malloc (size);
+  memcpy (str, zmq_msg_data (&message), size);
+  zmq_msg_close (&message);
+  bytes = malloc (sizeof (bytes_container));
+  bytes->size = size;
+  bytes->bytes = str;
+  return ((void *)bytes);
 }
 
 char *
