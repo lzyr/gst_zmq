@@ -120,13 +120,15 @@ Object subclass: Socket [
     receive [
         <category: 'messaging'>
 
-        ^ self receive: 0.
+        ^ self receive: 0 type: #string.
     ]
 
-    receive: intFlags [
+    receive: intFlags type: symType [
         <category: 'messaging'>
 
-        ^ Core recv_string: socket flags: intFlags.
+        symType = #string ifTrue: [ ^Core recv_string: socket flags: intFlags ]
+        ifFalse: [ symType = #byteArray ifTrue: [ ^self receiveBytes: intFlags ]
+                                        ifFalse: [ ^self receiveObject: intFlags ]].  
     ]
 
     receiveBytes: intFlags [
@@ -145,72 +147,139 @@ Object subclass: Socket [
         ^self receiveBytes: 0.
     ]
 
-    send: aString [
-        <category: 'messaging'>
-
-        ^ self send: aString flags: 0.
+    receiveObject: intFlags [  
+        | bytes stream |           
+        <category: 'messaging'>     
+        
+        bytes := self receiveBytes: intFlags.
+        stream := bytes readWriteStream.
+        stream reset.
+        ^(ObjectDumper on: stream) load.
     ]
 
-    sendBytes: aByteArray flags: intFlags [
-        <category: 'messaging'>
-
-        ^ Core send_bytes: socket bytes: aByteArray size: (aByteArray size) flags: intFlags.
+    receiveObject [
+        <category: 'messaging'>     
+        
+        ^ self receiveObject: 0.
     ]
 
-    sendBytes: aByteArray [
+    send: anObject [
         <category: 'messaging'>
 
-        ^ self sendBytes: aByteArray flags: 0.
+        ^self send: anObject flags: 0 type: #string.
     ]
 
-    send: aString flags: intFlags [
+    send: anObject flags: intFlags [
         <category: 'messaging'>
 
-        ^ Core send_bytes: socket bytes: aString size: (aString size) flags: intFlags.
+        ^self send: anObject flags: intFlags type: #string.
     ]
 
-    receiveSend: aRequestHandlerBlock flags: intFlags [
+    send: anObject type: symType [
+        <category: 'messaging'>
+
+        ^self send: anObject flags: 0 type: symType.
+    ]
+
+    send: anObject flags: intFlags type: symType [
+        <category: 'messaging'>
+
+        ((symType = #string) or: [ symType = #byteArray ])
+        ifTrue: [ ^Core send_bytes: socket bytes: anObject size: (anObject size) flags: intFlags. ]
+        ifFalse: [ ^self sendObject: anObject flags: intFlags. ].
+    ]
+
+    sendObject: anObject flags: intFlags [
+        | byteStream objDumper |
+        byteStream := (String new) readWriteStream.
+        objDumper := ObjectDumper on: byteStream.
+        objDumper dump: anObject.
+        byteStream reset.
+        ^self send: (byteStream contents) flags: intFlags type: #byteArray.
+    ]
+
+    receiveSend: aRequestHandlerBlock flags: intFlags type: symType [
         | requestString responseString |
         <category: 'messaging'>
         
-        requestString := self receive: intFlags.
+        requestString := self receive: intFlags type: symType.
         responseString := aRequestHandlerBlock value: requestString.
-        self send: responseString flags: intFlags.
+        ^self send: responseString flags: intFlags type: symType.
+    ]
+
+    receiveSend: aRequestHandlerBlock flags: intFlags [
+        <category: 'messaging'>
+        
+        ^self receiveSend: aRequestHandlerBlock flags: intFlags type: #string.
     ]
 
     receiveSend: aRequestHandlerBlock [
         <category: 'messaging'>
         
-        self receiveSend: aRequestHandlerBlock flags: 0.
+        ^self receiveSend: aRequestHandlerBlock flags: 0 type: #string.
+    ]
+
+    receiveSend: aRequestHandlerBlock type: symType [
+        <category: 'messaging'>
+        
+        ^self receiveSend: aRequestHandlerBlock flags: 0 type: symType.
+    ]
+
+    while: aPredicateBlock receiveSend: aRequestHandlerBlock flags: intFlags type: symType [
+        aPredicateBlock whileTrue: [ self receiveSend: aRequestHandlerBlock flags: intFlags type: symType ].
     ]
 
     while: aPredicateBlock receiveSend: aRequestHandlerBlock flags: intFlags [
-        aPredicateBlock whileTrue: [ self receiveSend: aRequestHandlerBlock flags: intFlags ].
+        self while: aPredicateBlock receiveSend: aRequestHandlerBlock flags: intFlags type: #string.       
     ]
 
     while: aPredicateBlock receiveSend: aRequestHandlerBlock [
-        aPredicateBlock whileTrue: [ self receiveSend: aRequestHandlerBlock flags: 0 ].
+        self while: aPredicateBlock receiveSend: aRequestHandlerBlock flags: 0 type: #string.       
     ]
 
-    while: aPredicateBlock send: aResponseGeneratorBlock [
-        self while: aPredicateBlock send: aResponseGeneratorBlock flags: 0.
+    while: aPredicateBlock receiveSend: aRequestHandlerBlock type: symType [
+        self while: aPredicateBlock receiveSend: aRequestHandlerBlock flags: 0 type: symType .       
+    ]
+
+    while: aPredicateBlock send: aResponseGeneratorBlock flags: intFlags type: symType [
+        aPredicateBlock whileTrue: [ self send: (aResponseGeneratorBlock value) flags: intFlags type: symType ].
     ]
 
     while: aPredicateBlock send: aResponseGeneratorBlock flags: intFlags [
-        aPredicateBlock whileTrue: [ self send: (aResponseGeneratorBlock value) flags: intFlags ].
+        self while: aPredicateBlock send: aResponseGeneratorBlock flags: intFlags type: #string.    
+    ]
+
+    while: aPredicateBlock send: aResponseGeneratorBlock type: symType [
+        self while: aPredicateBlock send: aResponseGeneratorBlock flags: 0 type: symType.    
+    ]
+
+    while: aPredicateBlock send: aResponseGeneratorBlock [
+        self while: aPredicateBlock send: aResponseGeneratorBlock flags: 0 type: #string.    
+    ]
+
+    sendReceive: aString handler: aResponseHandlerBlock flags: intFlags type: symType [
+        <category: 'messaging'>
+        
+        self send: aString flags: intFlags type: symType.
+        aResponseHandlerBlock value: (self receive: intFlags type: symType).
     ]
 
     sendReceive: aString handler: aResponseHandlerBlock flags: intFlags [
         <category: 'messaging'>
         
-        self send: aString flags: intFlags.
-        aResponseHandlerBlock value: (self receive: intFlags).
+        self sendReceive: aString handler: aResponseHandlerBlock flags: intFlags type: #string.
+    ]
+
+    sendReceive: aString handler: aResponseHandlerBlock type: symType [
+        <category: 'messaging'>
+        
+        self sendReceive: aString handler: aResponseHandlerBlock flags: 0 type: symType.
     ]
 
     sendReceive: aString handler: aResponseHandlerBlock [
         <category: 'messaging'>
-
-        self sendReceive: aString handler: aResponseHandlerBlock flags: 0.
+        
+        self sendReceive: aString handler: aResponseHandlerBlock flags: 0 type: #string.
     ]
 
     context: aContext [ 
