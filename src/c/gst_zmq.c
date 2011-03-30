@@ -49,8 +49,13 @@ strtype_to_int (const char *type)
     return ZMQ_REP;
   else if (strcmp (type, "Publish") == 0)
     return ZMQ_PUB;
-  else
+  else if (strcmp (type, "Subscribe") == 0)
     return ZMQ_SUB;
+  else if (strcmp (type, "Push") == 0)
+    return ZMQ_PUSH;
+  else if (strcmp (type, "Pull") == 0)
+    return ZMQ_PULL;
+  return -1;
 }
 
 void *

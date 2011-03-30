@@ -46,6 +46,18 @@ Object subclass: Socket [
         ^this.
     ]
 
+    Socket class >> bind: connectionString type: typeSymbol context: aContext [
+        | this |
+        <category: 'intialization'>
+        <comment: 'Creates and binds ZMQ socket.'>
+
+        aContext ifNil: [ SystemExceptions.CInterfaceError signal: 'Context is nil.' ].        
+        this := super new.
+        this context: aContext selfContext: false.
+        this initBindSocket_: connectionString type: typeSymbol.
+        ^this.
+    ]
+
     Socket class >> connect: connectionString [
         | this |
         <category: 'intialization'>
@@ -62,6 +74,18 @@ Object subclass: Socket [
         this := super new.
         this context: (Socket newContext: 1) selfContext: true.
         (this context) ifNil: [ SystemExceptions.CInterfaceError signal: 'Context is nil.' ].
+        this initConnectSocket_: connectionString type: typeSymbol.
+        ^this.
+    ]
+
+    Socket class >> connect: connectionString type: typeSymbol context: aContext [
+        | this |
+        <category: 'intialization'>
+        <comment: 'Creates and connects a ZMQ socket.'>
+
+        aContext ifNil: [ SystemExceptions.CInterfaceError signal: 'Context is nil.' ].        
+        this := super new.
+        this context: aContext selfContext: false.
         this initConnectSocket_: connectionString type: typeSymbol.
         ^this.
     ]
