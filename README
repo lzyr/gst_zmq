@@ -1,6 +1,5 @@
 ZeroMQ binding for GNU Smalltalk.
 
-Right now we have the basic Request-Reply sockets working. 
 Follow these steps to try out the plugin:
 (Be warned that the code is not yet ready for real-world use!)
 
