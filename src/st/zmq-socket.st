@@ -166,7 +166,7 @@ Object subclass: Socket [
     send: aString flags: intFlags [
         <category: 'messaging'>
 
-        ^ Core send_string: socket string: aString flags: intFlags.
+        ^ Core send_bytes: socket bytes: aString size: (aString size) flags: intFlags.
     ]
 
     receiveSend: aRequestHandlerBlock flags: intFlags [
