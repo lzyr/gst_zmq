@@ -258,6 +258,10 @@ Core extend [
         <cCall: 'gstzmq_REP' returning: #int args: #(#void)> 
     ]
 
+    Core class >> NOBLOCK [
+        <cCall: 'gstzmq_NOBLOCK' returning: #int args: #(#void)> 
+    ]
+
     
 ] "Class Core"
 

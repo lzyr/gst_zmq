@@ -40,6 +40,12 @@ gstzmq_REP ()
   return ZMQ_REP;
 }
 
+int
+gstzmq_NOBLOCK ()
+{
+  return ZMQ_NOBLOCK;
+}
+
 static int
 strtype_to_int (const char *type)
 {

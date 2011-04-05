@@ -353,6 +353,6 @@ Object subclass: Socket [
 
         aContext == nil ifFalse: [ Core term: aContext ]
     ]
-    
+
 ] "Class Socket"
 ] "Namespace ZMQ"
