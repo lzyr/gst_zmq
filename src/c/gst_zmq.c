@@ -46,6 +46,24 @@ gstzmq_NOBLOCK ()
   return ZMQ_NOBLOCK;
 }
 
+int
+gstzmq_POLLIN ()
+{
+  return ZMQ_POLLIN;
+}
+
+int
+gstzmq_POLLOUT ()
+{
+  return ZMQ_POLLOUT;
+}
+
+int
+gstzmq_POLLERR ()
+{
+  return ZMQ_POLLERR;
+}
+
 static int
 strtype_to_int (const char *type)
 {
@@ -224,6 +242,12 @@ int
 gstzmq_poll (poll_info *pi, long timeout)
 {
   return zmq_poll (pi->items, pi->count, timeout);
+}
+
+int
+gstzmq_poll_is_ready (poll_info *pi, int event, int index)
+{
+  return (pi->items[index].revents & event);
 }
 
 /* get/set socket options. */

@@ -53,13 +53,27 @@ Object subclass: Poll [
     ]
 
     poll: timeoutMicroSeconds [
-        | retSockets |
+        | retSockets pinfo |
 
         pollInfo ifNil: [ pollInfo := ZMQ.Core init_poll_info: (pollList size).
         self add_to_pollinfo. ].
         ZMQ.Core poll: pollInfo timeout: timeoutMicroSeconds.
         retSockets := LinkedList new.
-        "TODO: Check which socket has an event set. Add it to retSockets."
+        1 to: pollList size do: [ :n |  
+            pinfo := pollList at: n.
+            (ZMQ.Core poll_is_ready: pollInfo event: ZMQ.Core 
+                     sym_to_poll_event: (pinfo at: 2)  index: (n - 1) = 1)
+                ifTrue: [ retSockets add: (pinfo at: 1) ]]                
         ^ retSockets.
     ]
+
+    add_to_pollinfo [
+        | pinfo |
+
+        1 to: pollList size do: [ :n |  
+            pinfo := pollList at: n.
+            ZMQ.Core poll_info_add: pollInfo socket: (pinfo at: 1) fd: 0
+                events: (ZMQ.Core sym_to_poll_event: (pinfo at: 2)) revents: 0.
+    ]]
 ]
+    

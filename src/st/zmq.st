@@ -100,6 +100,10 @@ Core extend [
         <cCall: 'gstzmq_poll' returning: #int args: #(#cObject #long)> 
     ]
 
+    Core class >> poll_is_ready: aPointer event: anInt index: anotherInt [
+        <cCall: 'gstzmq_poll_is_ready' returning: #int args: #(#cObject #int #int)> 
+    ]
+
     "get/set socket options."
 
     Core class >> get_socket_type: aPointer [
@@ -246,6 +250,12 @@ Core extend [
         <cCall: 'zmq_strerror' returning: #string args: #(#int)> 
     ]
 
+    Core class >> sym_to_poll_event: aSymbol [
+        aSymbol = #pollin ifTrue: [ ^(Core POLLIN) ]
+            ifFalse: [ aSymbol = #pollout ifTrue: [ ^ (Core POLLOUT) ]
+                           ifFalse: [ ^ (Core POLLERR) ]].
+    ]
+
     Core class >> version [
         <cCall: 'gstzmq_version' returning: #stringOut args: #(#void)> 
     ]
@@ -262,6 +272,17 @@ Core extend [
         <cCall: 'gstzmq_NOBLOCK' returning: #int args: #(#void)> 
     ]
 
+    Core class >> POLLIN [
+        <cCall: 'gstzmq_POLLIN' returning: #int args: #(#void)> 
+    ]
+
+    Core class >> POLLOUT [
+        <cCall: 'gstzmq_POLLOUT' returning: #int args: #(#void)> 
+    ]
+
+    Core class >> POLLERR [
+        <cCall: 'gstzmq_POLLERR' returning: #int args: #(#void)> 
+    ]
     
 ] "Class Core"
 
